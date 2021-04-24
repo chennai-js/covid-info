@@ -6,7 +6,6 @@ export const ChipType = {
   Error: "bg-red-700 text-white"
 }
 
-export function Chip(props) {
-  let { type, ...restProps } = props;
-  return <span className={`rounded-md px-2 ${type} text-lg font-bold`} {...restProps} />;
+export function Chip({ type,  className, ...restProps }) {
+  return <span className={`rounded-md px-2 ${type} text-lg font-bold ${className}`} {...restProps} />;
 }
