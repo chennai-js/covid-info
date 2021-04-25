@@ -14,7 +14,7 @@ function App() {
   let [distList, setDistList] = useState([]);
   let [hospitalList, setHospitalList] = useState([]);
   useEffect(function getHospitalList() {
-    fetch("/mock.json", {
+    fetch("https://covidchennai.org/data.json", {
       mode: "cors"
     })
     .then(res => res.json())
