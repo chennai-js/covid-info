@@ -5,6 +5,6 @@ export const ButtonType = {
   Secondary: "text-yellow-500 border-yellow-500 hover:bg-yellow-500 hover:text-white",
   Default: "hover:bg-gray-200 border-gray-500"
 }
-export function Button({ type = ButtonType.Default, className, ...restProps }) {
+export function Button({ type = ButtonType.Default, className = "", ...restProps }) {
   return <button className={`rounded-full px-3 py-1 border-2 ${type} ${className}`} {...restProps} />
 }
