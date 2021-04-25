@@ -1,6 +1,5 @@
 import React from "react";
 
-export function Card(props) {
-  let { className = "", ...restProps } = props;
+export function Card({ className = "", ...restProps }) {
   return <div className={`rounded shadow pointer p-4 ${className}`} {...restProps} />;
 }
