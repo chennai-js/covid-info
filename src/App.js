@@ -38,7 +38,7 @@ function App() {
   }
 
   return (
-    <div className="lg:w-7/12 md:w-7/12 bg-white">
+    <div className="lg:w-7/12 md:w-7/12 bg-white flex flex-col">
       <div className="banner flex gap-x-2 px-4 h-14 items-center border-b-2">
         {/* <div><img src="/logo.svg" alt="logo" className="h-12 w-12"/></div> */}
         <div className="lg:flex-1 md:flex-1">

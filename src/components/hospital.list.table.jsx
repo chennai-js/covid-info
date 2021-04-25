@@ -24,8 +24,8 @@ export function HospitalListTable({
   }, [sortTypeSelected, hospitalList]);
 
   return (
-    <Card className="hospitalList my-2">
-      <div className="list-header grid grid-cols-8 md:grid-cols-6 lg:grid-cols-6 gap-3 mb-3 sticky top-0 bg-white pb-3 pt-3">
+    <Card className="hospitalList my-2 flex-1 overflow-y-auto">
+      <div className="list-header grid grid-cols-8 md:grid-cols-6 lg:grid-cols-6 gap-3 mb-3 sticky -top-4 bg-white pb-3 pt-3">
       <p className="col-span-auto hidden md:inline-flex lg:inline-flex md:col-span-2 lg:col-span-2"></p>
         <p className="cursor-pointer col-span-2 md:col-auto lg:col-auto" onClick={()=>setSortTypeSelected("nonOxygenV")}>
           {`Without Oxygen ${sortTypeSelected==="nonOxygenV" ? "▼": ""}`}
