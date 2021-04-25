@@ -1,6 +1,12 @@
 import React from "react";
+import PropTypes from "prop-types";
 
-export function Card(props) {
-  let { className = "", ...restProps } = props;
-  return <div className={`rounded shadow pointer p-4 ${className}`} {...restProps} />;
+export function Card({ className = "", ...restProps }) {
+  return (
+    <div className={`rounded shadow pointer p-4 ${className}`} {...restProps} />
+  );
 }
+
+Card.propTypes = {
+  className: PropTypes.string,
+};
