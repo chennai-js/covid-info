@@ -6,6 +6,6 @@ export const ButtonType = {
   Default: "hover:bg-gray-200 border-gray-500"
 }
 export function Button(props) {
-  let { type = ButtonType.Default, ...restProps } = props;
-  return <button className={`rounded-full px-3 py-1 border-2 ${type}`} {...restProps} />
+  let { type = ButtonType.Default, className = "", ...restProps } = props;
+  return <button className={`${className} rounded-full px-3 py-1 border-2 ${type}`} {...restProps} />
 }
