@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button, ButtonType } from "./button.jsx";
 import { Chip, ChipType } from "./chip.jsx";
@@ -6,21 +6,42 @@ import { Card } from "./card.jsx";
 
 import { getChipType } from "../util/get.chip.type.js";
 
+
+const sortTypes = {
+  oxygenV:"OXYGEN BEDS Vacant",
+  nonOxygenV:"NON-OXYGEN SUPPORTED BEDS Vacant",
+  icuV:"ICU BEDS Vacant",
+  ventilatorV: "VENTILATOR Vacant"
+}
+
 export function HospitalListTable({
   hospitalList = []
 }) {
 
+  const [sortTypeSelected, setSortTypeSelected] =useState("oxygenV")
+  let sortedHospitalList = useMemo(() => {
+    return hospitalList.sort((a,b)=>b[sortTypes[sortTypeSelected]]-a[sortTypes[sortTypeSelected]]);
+  }, [sortTypeSelected, hospitalList]);
+
   return (
     <Card className="hospitalList my-2">
       <div className="list-header grid grid-cols-6 gap-3 mb-3">
-        <p className="col-span-2"></p>
-        <p>Without Oxygen</p>
-        <p>With Oxygen</p>
-        <p>ICU</p>
-        <p>ICU With Vendilator</p>
+        <p className="col-span-2 cursor-pointer"></p>
+        <p className="cursor-pointer" onClick={()=>setSortTypeSelected("nonOxygenV")}>
+          {`Without Oxygen ${sortTypeSelected==="nonOxygenV" ? "▼": ""}`}
+        </p>
+        <p className="cursor-pointer" onClick={()=>setSortTypeSelected("oxygenV")}>
+          {`With Oxygen ${sortTypeSelected==="oxygenV" ? "▼" :""}`}
+        </p>
+        <p className="cursor-pointer" onClick={()=>setSortTypeSelected("icuV")}>
+          {`ICU ${sortTypeSelected==="icuV" ? "▼": ""}`}
+        </p>
+        <p className="cursor-pointer" onClick={()=>setSortTypeSelected("ventilatorV")}>
+          {`ICU With Ventilator ${sortTypeSelected==="ventilatorV" ? "▼":""}`}
+        </p>
       </div>
       {
-        hospitalList.map((hospitalInfo, index) => {
+        sortedHospitalList.map((hospitalInfo, index) => {
           return (
             <HospitalsInfo key={hospitalInfo["Institution "]} hospitalInfo={hospitalInfo}/>     
           )
@@ -43,7 +64,7 @@ function HospitalsInfo({
     return ChipType[getChipType(percentile)]
   });
   let [icuBedChipType] = useState(() => {
-    let percentile = parseInt(hospitalInfo["OXYGEN BEDS Vacant"]) / parseInt(hospitalInfo["ICU BEDS Total"]) * 100;
+    let percentile = parseInt(hospitalInfo["ICU BEDS Vacant"]) / parseInt(hospitalInfo["ICU BEDS Total"]) * 100;
     return ChipType[getChipType(percentile)]
   });
   let [vendilatorChipType] = useState(() => {
