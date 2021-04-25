@@ -1,3 +1,7 @@
 .headerList {
   @apply 
 }
+
+.fit-content{
+  width: fit-content;
+}
