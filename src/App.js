@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "./components/card.jsx";
 import { Heading } from "./components/heading.jsx";
 import { Select } from "./components/select.jsx";
@@ -9,33 +9,31 @@ import { HospitalCardList } from "./components/hospital.list.card.jsx";
 import { HospitalListTable } from "./components/hospital.list.table.jsx";
 
 function App() {
-
   let [selectedDist, changeDist] = useState("Chennai");
   let [distList, setDistList] = useState([]);
   let [hospitalList, setHospitalList] = useState([]);
   useEffect(function getHospitalList() {
     fetch("https://covidchennai.org/data.json", {
-      mode: "cors"
+      mode: "cors",
     })
-    .then(res => res.json())
-    .then(data => {
-      let hospitalsByDist = data.reduce((acc, hospital) => {
-        let dist = hospital["District "];
-        let arr = acc[dist] || [];
-        arr.push(hospital);
-        acc[dist] = arr;
-        return acc; 
-      }, {});
-      let distList = Object.keys(hospitalsByDist);
-      setDistList(distList);
-      setHospitalList(hospitalsByDist);
-    })
+      .then((res) => res.json())
+      .then((data) => {
+        let hospitalsByDist = data.reduce((acc, hospital) => {
+          let dist = hospital["District "];
+          let arr = acc[dist] || [];
+          arr.push(hospital);
+          acc[dist] = arr;
+          return acc;
+        }, {});
+        let distList = Object.keys(hospitalsByDist);
+        setDistList(distList);
+        setHospitalList(hospitalsByDist);
+      });
   }, []);
 
   const onSelect = (value) => {
     changeDist(value);
-    console.log("selected value", value);
-  }
+  };
 
   return (
     <div className="lg:w-7/12 md:w-7/12 bg-white flex flex-col">
@@ -61,13 +59,14 @@ function App() {
         </p>
         <p>
           Filter by district: &nbsp;
-          <Select value={selectedDist} options={distList} onSelect={onSelect}/>
+          <Select value={selectedDist} options={distList} onSelect={onSelect} />
         </p>
       </Card>
-      {
-        isMobile() ? <HospitalCardList hospitalList={hospitalList[selectedDist]} /> :
+      {isMobile() ? (
+        <HospitalCardList hospitalList={hospitalList[selectedDist]} />
+      ) : (
         <HospitalListTable hospitalList={hospitalList[selectedDist]} />
-      }
+      )}
     </div>
   );
 }

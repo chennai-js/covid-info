@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { Card } from "./card.jsx";
 import { Heading, HeadingSize } from "./heading.jsx";
@@ -6,20 +6,20 @@ import { Button, ButtonType } from "./button.jsx";
 import { Chip, ChipType } from "./chip.jsx";
 
 import { getChipType } from "../util/get.chip.type.js";
+import PropTypes from "prop-types";
+import HospitalInfoType from "../hospital-info.type";
 
 export function HospitalCardList({ hospitalList = [] }) {
   return (
     <div className="my-2 flex-1 overflow-y-auto">
-      {
-        hospitalList.map((hospitalInfo) => {
-          return (
-            <HospitalCard
-              key={hospitalInfo["Institution "]}
-              hospitalInfo={hospitalInfo}
-            />
-          );
-        })
-      }
+      {hospitalList.map((hospitalInfo) => {
+        return (
+          <HospitalCard
+            key={hospitalInfo["Institution "]}
+            hospitalInfo={hospitalInfo}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -57,38 +57,52 @@ function HospitalCard({ hospitalInfo }) {
   return (
     <Card className="m-3">
       <Heading size={HeadingSize.Main}>{hospitalInfo["Institution "]}</Heading>
-      {
-        hospitalInfo["Contact numbers "] &&
+      {hospitalInfo["Contact numbers "] && (
         <Heading size={HeadingSize.Sub} className="flex items-center">
-          <span className="mr-2" >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          <span className="mr-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+              />
             </svg>
           </span>
           <a href={`tel:${hospitalInfo["Contact numbers "]}`}>
             {hospitalInfo["Contact numbers "]}
           </a>
         </Heading>
-      }
+      )}
       <p className="address text-xs md:text-sm mt-1">
         {hospitalInfo["Address "]}
       </p>
       <p className="flex mt-2">
-        <a target="_blank" href={hospitalInfo["Google map link "]}>
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={hospitalInfo["Google map link "]}
+        >
           <Button type={ButtonType.Primary}>
             Direction
             <span className="ml-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
@@ -150,3 +164,11 @@ function HospitalCard({ hospitalInfo }) {
     </Card>
   );
 }
+
+HospitalCardList.propTypes = {
+  hospitalList: PropTypes.arrayOf(PropTypes.exact(HospitalInfoType)),
+};
+
+HospitalCard.propTypes = {
+  hospitalInfo: PropTypes.exact(HospitalInfoType),
+};
