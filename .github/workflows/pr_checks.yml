@@ -5,7 +5,7 @@ name: Node.js CI
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -27,6 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: ESLint Plus
+        uses: bradennapier/eslint-plus-action@v3
 
       - name: Run the tests
         run: npm test
