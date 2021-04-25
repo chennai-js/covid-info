@@ -5,6 +5,6 @@ export const HeadingSize = {
   Sub: "text-blue-400 text-md font-medium"
 }
 export function Heading(props) {
-  let { size = HeadingSize.Main, ...restProps } = props;
-  return <p className={`${size}`} {...restProps} />
+  let { size = HeadingSize.Main, className = "", ...restProps } = props;
+  return <p className={`${size} ${className}`} {...restProps} />
 }
