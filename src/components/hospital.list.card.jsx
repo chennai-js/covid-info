@@ -8,14 +8,20 @@ import { Chip, ChipType } from "./chip.jsx";
 import { getChipType } from "../util/get.chip.type.js";
 
 export function HospitalCardList({ hospitalList = [] }) {
-  return hospitalList.map((hospitalInfo) => {
-    return (
-      <HospitalCard
-        key={hospitalInfo["Institution "]}
-        hospitalInfo={hospitalInfo}
-      />
-    );
-  });
+  return (
+    <div className="my-2 flex-1 overflow-y-auto">
+      {
+        hospitalList.map((hospitalInfo) => {
+          return (
+            <HospitalCard
+              key={hospitalInfo["Institution "]}
+              hospitalInfo={hospitalInfo}
+            />
+          );
+        })
+      }
+    </div>
+  );
 }
 
 function HospitalCard({ hospitalInfo }) {
