@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card } from "./components/card.jsx";
 import { Heading } from "./components/heading.jsx";
 import { Select } from "./components/select.jsx";
-
+import SearchBar from "./components/search-bar.jsx";
 import { isMobile } from "./util/is.mobile.js";
 
 import { HospitalCardList } from "./components/hospital.list.card.jsx";
@@ -12,6 +12,8 @@ function App() {
   let [selectedDist, changeDist] = useState("Chennai");
   let [distList, setDistList] = useState([]);
   let [hospitalList, setHospitalList] = useState([]);
+  let [searchText, setSearchText] = useState("");
+  let [filteredHospitalList, setFilteredHospitalList] = useState([]);
   useEffect(function getHospitalList() {
     fetch("https://covidchennai.org/data.json", {
       mode: "cors",
@@ -31,8 +33,44 @@ function App() {
       });
   }, []);
 
+  // filtered hospital values
+  useEffect(() => {
+    setFilteredHospitalList(hospitalList[selectedDist]);
+  }, [distList, hospitalList]);
+
+  // Checks onselect district and set hospital values
+  useEffect(() => {
+    setFilteredHospitalList(hospitalList[selectedDist]);
+  }, [selectedDist]);
+
   const onSelect = (value) => {
     changeDist(value);
+  };
+
+  const filterHospital = (searchText) => {
+    if (!searchText) {
+      setFilteredHospitalList(hospitalList[selectedDist]);
+      return;
+    }
+    const filtered = hospitalList[selectedDist].filter((hospital) => {
+      return (
+        hospital["Institution "]
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        hospital["Address "].toLowerCase().includes(searchText.toLowerCase())
+      );
+    });
+    setFilteredHospitalList(filtered);
+  };
+
+  const handleSearch = (input) => {
+    filterHospital(input.target.value);
+    setSearchText(input.target.value);
+  };
+
+  const handleClear = () => {
+    setFilteredHospitalList(hospitalList[selectedDist]);
+    setSearchText("");
   };
 
   return (
@@ -62,10 +100,17 @@ function App() {
           <Select value={selectedDist} options={distList} onSelect={onSelect} />
         </p>
       </Card>
+
+      <SearchBar
+        handleSearch={handleSearch}
+        handleClear={handleClear}
+        searchText={searchText}
+      />
+
       {isMobile() ? (
-        <HospitalCardList hospitalList={hospitalList[selectedDist]} />
+        <HospitalCardList hospitalList={filteredHospitalList} />
       ) : (
-        <HospitalListTable hospitalList={hospitalList[selectedDist]} />
+        <HospitalListTable hospitalList={filteredHospitalList} />
       )}
     </div>
   );
