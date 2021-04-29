@@ -15,6 +15,7 @@ function App() {
   let [hospitalList, setHospitalList] = useState([]);
   let [searchText, setSearchText] = useState("");
   let [filteredHospitalList, setFilteredHospitalList] = useState([]);
+  const [filterCache, setFilterCache] = useState([]);
   useEffect(function getHospitalList() {
     fetch("https://covidchennai.org/data.json", {
       mode: "cors",
@@ -49,11 +50,21 @@ function App() {
   };
 
   const filterHospital = (searchText) => {
-    if (!searchText) {
+    if (
+      (filterState.withoutOxygen ||
+        filterState.oxygen ||
+        filterState.icu ||
+        filterState.icuWithVentilator) &&
+      !searchText
+    ) {
+      setFilteredHospitalList(filterCache);
+      return;
+    } else if (!searchText) {
       setFilteredHospitalList(hospitalList[selectedDist]);
       return;
     }
-    const filtered = hospitalList[selectedDist].filter((hospital) => {
+
+    const filtered = filteredHospitalList.filter((hospital) => {
       return (
         hospital["Institution "]
           .toLowerCase()
@@ -70,76 +81,116 @@ function App() {
   };
 
   const handleClear = () => {
-    setFilteredHospitalList(hospitalList[selectedDist]);
-    setSearchText("");
+    if (
+      filterState.withoutOxygen ||
+      filterState.oxygen ||
+      filterState.icu ||
+      filterState.icuWithVentilator
+    ) {
+      setFilteredHospitalList(filterCache);
+      setSearchText("");
+    } else {
+      setFilteredHospitalList(hospitalList[selectedDist]);
+      setSearchText("");
+    }
   };
 
   //filter state
 
-  const [withoutOxygen, setWithoutOxygen] = React.useState(false);
-  const [oxygen, setOxygen] = React.useState(false);
-  const [icu, setIcu] = React.useState(false);
-  const [icuwithventilator, setIcuWithVentilator] = React.useState(false);
+  const defaultFilterState = {
+    oxygen: false,
+    withoutOxygen: false,
+    icu: false,
+    icuWithVentilator: false,
+  };
+  const [filterState, setFilterState] = useState({
+    oxygen: false,
+    withoutOxygen: false,
+    icu: false,
+    icuWithVentilator: false,
+  });
+
+  const handleFilter = (filterName) => {
+    setFilterState({
+      ...defaultFilterState,
+      [filterName]: !filterState[filterName],
+    });
+  };
 
   const handleIcu = () => {
-    setIcu(!icu);
-    setOxygen(false);
-    setWithoutOxygen(false);
-    setIcuWithVentilator(false);
+    handleFilter("icu");
   };
 
   const handleOxygen = () => {
-    setOxygen(!oxygen);
-    setIcu(false);
-    setWithoutOxygen(false);
-    setIcuWithVentilator(false);
+    handleFilter("oxygen");
   };
 
   const handleIcuWithVentilator = () => {
-    setIcuWithVentilator(!icuwithventilator);
-    setOxygen(false);
-    setWithoutOxygen(false);
-    setIcu(false);
+    handleFilter("icuWithVentilator");
   };
 
   const handleWithoutOxygen = () => {
-    setWithoutOxygen(!withoutOxygen);
-    setOxygen(false);
-    setIcu(false);
-    setIcuWithVentilator(false);
+    handleFilter("withoutOxygen");
   };
 
+  const filterBadges = [
+    {
+      value: "Without Oxygen",
+      active: filterState.withoutOxygen,
+      handleFilter: handleWithoutOxygen,
+    },
+    {
+      value: "With Oxygen",
+      active: filterState.oxygen,
+      handleFilter: handleOxygen,
+    },
+    {
+      value: "ICU",
+      active: filterState.icu,
+      handleFilter: handleIcu,
+    },
+    {
+      value: "ICU With Ventilator",
+      active: filterState.icuWithVentilator,
+      handleFilter: handleIcuWithVentilator,
+    },
+  ];
+
   useEffect(() => {
-    if (oxygen) {
+    if (filterState.oxygen) {
       const oxygenFilteredArr = hospitalList[selectedDist].filter(
         (hospital) => {
           return hospital["OXYGEN BEDS Vacant"] > 0;
         }
       );
       setFilteredHospitalList(oxygenFilteredArr);
-    } else if (icu) {
+      setFilterCache(oxygenFilteredArr);
+    } else if (filterState.icu) {
       const icufilteredArr = hospitalList[selectedDist].filter((hospital) => {
         return hospital["ICU BEDS Vacant"] > 0;
       });
       setFilteredHospitalList(icufilteredArr);
-    } else if (withoutOxygen) {
+      setFilterCache(icufilteredArr);
+    } else if (filterState.withoutOxygen) {
       const withoutOxygenFilteredArr = hospitalList[selectedDist].filter(
         (hospital) => {
           return hospital["NON-OXYGEN SUPPORTED BEDS Vacant"] > 0;
         }
       );
       setFilteredHospitalList(withoutOxygenFilteredArr);
-    } else if (icuwithventilator) {
+      setFilterCache(withoutOxygenFilteredArr);
+    } else if (filterState.icuWithVentilator) {
       const icuWithVentilatorFilteredArr = hospitalList[selectedDist].filter(
         (hospital) => {
           return hospital["VENTILATOR Vacant"] > 0;
         }
       );
       setFilteredHospitalList(icuWithVentilatorFilteredArr);
+      setFilterCache(icuWithVentilatorFilteredArr);
     } else {
       setFilteredHospitalList(hospitalList[selectedDist]);
     }
-  }, [icu, oxygen, withoutOxygen, icuwithventilator, selectedDist]);
+  }, [filterState, selectedDist]);
 
   return (
     <div className="lg:w-7/12 md:w-7/12 bg-white flex flex-col">
@@ -178,22 +229,16 @@ function App() {
         <div className="flex gap-x-2 items-center">
           <span className="mt-2">Available filters: </span>
           <div className="m-l-auto  flex flex-wrap gap-x-2 mt-3">
-            <Badge
-              value="Without Oxygen"
-              active={withoutOxygen}
-              handleFilter={handleWithoutOxygen}
-            ></Badge>
-            <Badge
-              value="With Oxygen"
-              active={oxygen}
-              handleFilter={handleOxygen}
-            ></Badge>
-            <Badge value="ICU" active={icu} handleFilter={handleIcu}></Badge>
-            <Badge
-              value="ICU With Ventilator"
-              active={icuwithventilator}
-              handleFilter={handleIcuWithVentilator}
-            ></Badge>
+            {filterBadges.map((badge) => {
+              return (
+                <Badge
+                  key={badge.value}
+                  value={badge.value}
+                  active={badge.active}
+                  handleFilter={badge.handleFilter}
+                ></Badge>
+              );
+            })}
           </div>
         </div>
       </Card>
