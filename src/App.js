@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useEffect, useState } from "react";
 import { Card } from "./components/card.jsx";
 import { Heading } from "./components/heading.jsx";
