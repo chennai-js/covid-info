@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useEffect, useState } from "react";
 import { Card } from "./components/card.jsx";
 import { Heading } from "./components/heading.jsx";
@@ -49,7 +50,9 @@ function App() {
     changeDist(value);
   };
 
-  const filterHospital = (searchText) => {
+  const searchFilter = (searchText) => {
+    // comes here if there is no text in search bar
+
     if (
       (filterState.withoutOxygen ||
         filterState.oxygen ||
@@ -64,19 +67,36 @@ function App() {
       return;
     }
 
-    const filtered = filteredHospitalList.filter((hospital) => {
-      return (
-        hospital["Institution "]
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        hospital["Address "].toLowerCase().includes(searchText.toLowerCase())
-      );
-    });
+    const getFilteredHospitals = (searchArr) => {
+      return searchArr.filter((hospital) => {
+        return (
+          hospital["Institution "]
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          hospital["Address "].toLowerCase().includes(searchText.toLowerCase())
+        );
+      });
+    };
+
+    // comes here if there is text in search bar
+    let filtered = [];
+    if (
+      (filterState.withoutOxygen ||
+        filterState.oxygen ||
+        filterState.icu ||
+        filterState.icuWithVentilator) &&
+      searchText
+    ) {
+      filtered = getFilteredHospitals(filterCache);
+    } else if (searchText) {
+      filtered = getFilteredHospitals(filteredHospitalList);
+    }
+
     setFilteredHospitalList(filtered);
   };
 
   const handleSearch = (input) => {
-    filterHospital(input.target.value);
+    searchFilter(input.target.value);
     setSearchText(input.target.value);
   };
 
@@ -117,42 +137,26 @@ function App() {
     });
   };
 
-  const handleIcu = () => {
-    handleFilter("icu");
-  };
-
-  const handleOxygen = () => {
-    handleFilter("oxygen");
-  };
-
-  const handleIcuWithVentilator = () => {
-    handleFilter("icuWithVentilator");
-  };
-
-  const handleWithoutOxygen = () => {
-    handleFilter("withoutOxygen");
-  };
-
   const filterBadges = [
     {
       value: "Without Oxygen",
       active: filterState.withoutOxygen,
-      handleFilter: handleWithoutOxygen,
+      handleFilter: () => handleFilter("withoutOxygen"),
     },
     {
       value: "With Oxygen",
       active: filterState.oxygen,
-      handleFilter: handleOxygen,
+      handleFilter: () => handleFilter("oxygen"),
     },
     {
       value: "ICU",
       active: filterState.icu,
-      handleFilter: handleIcu,
+      handleFilter: () => handleFilter("icu"),
     },
     {
       value: "ICU With Ventilator",
       active: filterState.icuWithVentilator,
-      handleFilter: handleIcuWithVentilator,
+      handleFilter: () => handleFilter("icuWithVentilator"),
     },
   ];
 
