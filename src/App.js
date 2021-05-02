@@ -4,6 +4,7 @@ import { Heading } from "./components/heading.jsx";
 import { Select } from "./components/select.jsx";
 import SearchBar from "./components/search-bar.jsx";
 import { isMobile } from "./util/is.mobile.js";
+import { Badge } from "./components/badge.jsx";
 
 import { HospitalCardList } from "./components/hospital.list.card.jsx";
 import { HospitalListTable } from "./components/hospital.list.table.jsx";
@@ -14,6 +15,7 @@ function App() {
   let [hospitalList, setHospitalList] = useState([]);
   let [searchText, setSearchText] = useState("");
   let [filteredHospitalList, setFilteredHospitalList] = useState([]);
+  const [filterCache, setFilterCache] = useState([]);
   useEffect(function getHospitalList() {
     fetch("https://covidchennai.org/data.json", {
       mode: "cors",
@@ -47,31 +49,151 @@ function App() {
     changeDist(value);
   };
 
-  const filterHospital = (searchText) => {
-    if (!searchText) {
+  const searchFilter = (searchText) => {
+    // comes here if there is no text in search bar
+
+    if (
+      (filterState.withoutOxygen ||
+        filterState.oxygen ||
+        filterState.icu ||
+        filterState.icuWithVentilator) &&
+      !searchText
+    ) {
+      setFilteredHospitalList(filterCache);
+      return;
+    } else if (!searchText) {
       setFilteredHospitalList(hospitalList[selectedDist]);
       return;
     }
-    const filtered = hospitalList[selectedDist].filter((hospital) => {
-      return (
-        hospital["Institution "]
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        hospital["Address "].toLowerCase().includes(searchText.toLowerCase())
-      );
-    });
+
+    const getFilteredHospitals = (searchArr) => {
+      return searchArr.filter((hospital) => {
+        return (
+          hospital["Institution "]
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          hospital["Address "].toLowerCase().includes(searchText.toLowerCase())
+        );
+      });
+    };
+
+    // comes here if there is text in search bar
+    let filtered = [];
+    if (
+      (filterState.withoutOxygen ||
+        filterState.oxygen ||
+        filterState.icu ||
+        filterState.icuWithVentilator) &&
+      searchText
+    ) {
+      filtered = getFilteredHospitals(filterCache);
+    } else if (searchText) {
+      filtered = getFilteredHospitals(filteredHospitalList);
+    }
+
     setFilteredHospitalList(filtered);
   };
 
   const handleSearch = (input) => {
-    filterHospital(input.target.value);
+    searchFilter(input.target.value);
     setSearchText(input.target.value);
   };
 
   const handleClear = () => {
-    setFilteredHospitalList(hospitalList[selectedDist]);
-    setSearchText("");
+    if (
+      filterState.withoutOxygen ||
+      filterState.oxygen ||
+      filterState.icu ||
+      filterState.icuWithVentilator
+    ) {
+      setFilteredHospitalList(filterCache);
+      setSearchText("");
+    } else {
+      setFilteredHospitalList(hospitalList[selectedDist]);
+      setSearchText("");
+    }
   };
+
+  //filter state
+
+  const defaultFilterState = {
+    oxygen: false,
+    withoutOxygen: false,
+    icu: false,
+    icuWithVentilator: false,
+  };
+  const [filterState, setFilterState] = useState({
+    oxygen: false,
+    withoutOxygen: false,
+    icu: false,
+    icuWithVentilator: false,
+  });
+
+  const handleFilter = (filterName) => {
+    setFilterState({
+      ...defaultFilterState,
+      [filterName]: !filterState[filterName],
+    });
+  };
+
+  const filterBadges = [
+    {
+      value: "Without Oxygen",
+      active: filterState.withoutOxygen,
+      handleFilter: () => handleFilter("withoutOxygen"),
+    },
+    {
+      value: "With Oxygen",
+      active: filterState.oxygen,
+      handleFilter: () => handleFilter("oxygen"),
+    },
+    {
+      value: "ICU",
+      active: filterState.icu,
+      handleFilter: () => handleFilter("icu"),
+    },
+    {
+      value: "ICU With Ventilator",
+      active: filterState.icuWithVentilator,
+      handleFilter: () => handleFilter("icuWithVentilator"),
+    },
+  ];
+
+  useEffect(() => {
+    if (filterState.oxygen) {
+      const oxygenFilteredArr = hospitalList[selectedDist].filter(
+        (hospital) => {
+          return hospital["OXYGEN BEDS Vacant"] > 0;
+        }
+      );
+      setFilteredHospitalList(oxygenFilteredArr);
+      setFilterCache(oxygenFilteredArr);
+    } else if (filterState.icu) {
+      const icufilteredArr = hospitalList[selectedDist].filter((hospital) => {
+        return hospital["ICU BEDS Vacant"] > 0;
+      });
+      setFilteredHospitalList(icufilteredArr);
+      setFilterCache(icufilteredArr);
+    } else if (filterState.withoutOxygen) {
+      const withoutOxygenFilteredArr = hospitalList[selectedDist].filter(
+        (hospital) => {
+          return hospital["NON-OXYGEN SUPPORTED BEDS Vacant"] > 0;
+        }
+      );
+      setFilteredHospitalList(withoutOxygenFilteredArr);
+      setFilterCache(withoutOxygenFilteredArr);
+    } else if (filterState.icuWithVentilator) {
+      const icuWithVentilatorFilteredArr = hospitalList[selectedDist].filter(
+        (hospital) => {
+          return hospital["VENTILATOR Vacant"] > 0;
+        }
+      );
+      setFilteredHospitalList(icuWithVentilatorFilteredArr);
+      setFilterCache(icuWithVentilatorFilteredArr);
+    } else {
+      setFilteredHospitalList(hospitalList[selectedDist]);
+    }
+  }, [filterState, selectedDist]);
 
   return (
     <div className="lg:w-7/12 md:w-7/12 bg-white flex flex-col">
@@ -101,11 +223,28 @@ function App() {
         </p>
       </Card>
 
-      <SearchBar
-        handleSearch={handleSearch}
-        handleClear={handleClear}
-        searchText={searchText}
-      />
+      <Card>
+        <SearchBar
+          handleSearch={handleSearch}
+          handleClear={handleClear}
+          searchText={searchText}
+        />
+        <div className="flex gap-x-2 items-center">
+          <span className="mt-2">Available filters: </span>
+          <div className="m-l-auto  flex flex-wrap gap-x-2 mt-3">
+            {filterBadges.map((badge) => {
+              return (
+                <Badge
+                  key={badge.value}
+                  value={badge.value}
+                  active={badge.active}
+                  handleFilter={badge.handleFilter}
+                ></Badge>
+              );
+            })}
+          </div>
+        </div>
+      </Card>
 
       {isMobile() ? (
         <HospitalCardList hospitalList={filteredHospitalList} />
