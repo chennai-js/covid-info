@@ -3,11 +3,11 @@ import { Card } from "./components/card.jsx";
 import { Heading } from "./components/heading.jsx";
 import { Select } from "./components/select.jsx";
 import SearchBar from "./components/search-bar.jsx";
-import { isMobile } from "./util/is.mobile.js";
+// import { isMobile } from "./util/is.mobile.js";
 import { Badge } from "./components/badge.jsx";
 
-import { HospitalCardList } from "./components/hospital.list.card.jsx";
-import { HospitalListTable } from "./components/hospital.list.table.jsx";
+// import { HospitalCardList } from "./components/hospital.list.card.jsx";
+// import { HospitalListTable } from "./components/hospital.list.table.jsx";
 
 function App() {
   let [selectedDist, changeDist] = useState("Chennai");
@@ -201,7 +201,7 @@ function App() {
         {/* <div><img src="/logo.svg" alt="logo" className="h-12 w-12"/></div> */}
         <div className="lg:flex-1 md:flex-1">
           <Heading>Chennai covid info</Heading>
-          <p>Updated every 30min</p>
+          {/* <p>Updated every 30min</p> */}
         </div>
         {/* <div className="m-l-auto flex gap-x-2">
           <Chip type={ChipType.Info}>xxxxx</Chip>
@@ -209,7 +209,65 @@ function App() {
           <Chip type={ChipType.Info}>xxxxx</Chip>
         </div> */}
       </div>
-      <Card className="filter mt-2 gap-x-2 sticky top-4 pb-4 pl-5 pt-4 z-10 bg-green-700 text-white">
+
+      <div className="bg-yellow-200 pl-2">
+        <div className="official-helpline mb-5 mt-5">
+          Official helpline for COVID hospital bed in Tamil Nadu -
+          <div className="text-2xl mb-2 mt-2">📞 104</div>
+          <div>
+            or tweet{" "}
+            <a
+              className="text-blue-800 hover:underline"
+              href="https://twitter.com/hashtag/BedsForTN?src=hashtag_click&f=live"
+            >
+              #BedsforTN
+            </a>{" "}
+            to
+            <a
+              className="text-blue-800 hover:underline"
+              href="https://twitter.com/104_GoTN"
+            >
+              104_GoTN
+            </a>
+          </div>
+        </div>
+        <div className="bed-vacancy-data mb-2">
+          <h3>COVID bed vacancy data </h3>
+          <a
+            className="text-blue-800 hover:underline"
+            href="https://tncovidbeds.tnega.org/"
+          >
+            tncovidbeds.tnega.org
+          </a>
+          <br />
+          <a
+            className="text-blue-800 hover:underline"
+            href="https://stopcorona.tn.gov.in"
+          >
+            stopcorona.tn.gov.in
+          </a>
+        </div>
+        <div className="crowdsourced-data mb-2 mt-4">
+          <h3> Crowdsourced data </h3>
+          <a
+            className="text-blue-800 hover:underline"
+            href="https://stopcoronatn.github.io/"
+          >
+            stopcoronatn.github.io
+          </a>
+        </div>
+        <div className="other-help mt-4 mb-2">
+          <h3>Other Info (home testing, fever camps etc)</h3>
+          <a
+            className="text-blue-800 hover:underline"
+            href="https://chennaicovidhelp.in/"
+          >
+            chennaicovidhelp.in
+          </a>
+        </div>
+      </div>
+
+      <Card className="hidden filter mt-2 gap-x-2 sticky top-4 pb-4 pl-5 pt-4 z-10 bg-green-700 text-white">
         {/* <Button type={ButtonType.Primary}>Beds</Button>
         <Button type={ButtonType.Primary}>Plasma</Button>
         <Button type={ButtonType.Primary}>Hospitals</Button>
@@ -223,7 +281,7 @@ function App() {
         </p>
       </Card>
 
-      <Card>
+      <Card className="hidden">
         <SearchBar
           handleSearch={handleSearch}
           handleClear={handleClear}
@@ -246,11 +304,11 @@ function App() {
         </div>
       </Card>
 
-      {isMobile() ? (
+      {/* {isMobile() ? (
         <HospitalCardList hospitalList={filteredHospitalList} />
       ) : (
         <HospitalListTable hospitalList={filteredHospitalList} />
-      )}
+      )} */}
     </div>
   );
 }
